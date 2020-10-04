@@ -26,24 +26,28 @@ type HMap struct {
 	mutex   sync.Mutex
 }
 
+// Method to write the key into the hash algorithm
 func writeToHash(key K, hash maphash.Hash) {
 	sKey := fmt.Sprintf("%s", key)
 	hash.WriteString(sKey)
 }
 
+// Method to calculate the index of the key
 func calcIndex(h int, length int) int {
 	index := h & (length - 1)
 	return index
 }
 
-func New(size int) *HMap {
-	length := int(math.Ceil(float64(size)/16) * 16)
+// New creates a new HMap structure with a size multiple of 16 greater than minSize
+func New(minSize int) *HMap {
+	length := int(math.Ceil(float64(minSize)/16) * 16)
 
 	return &HMap{
 		buckets: make([]*Bucket, length),
 	}
 }
 
+// Put adds a new pair of Key and Value to the Hash Map
 func (hm *HMap) Put(key K, value V) {
 	hm.mutex.Lock()
 	defer hm.mutex.Unlock()
@@ -58,6 +62,7 @@ func (hm *HMap) Put(key K, value V) {
 	}
 }
 
+// Remove removes a pair of Key and Value form the Hash Map
 func (hm *HMap) Remove(key K) {
 	hm.mutex.Lock()
 	defer hm.mutex.Unlock()
@@ -69,6 +74,7 @@ func (hm *HMap) Remove(key K) {
 	hm.buckets[index] = nil
 }
 
+// Get returns the value associated to the given Key
 func (hm *HMap) Get(key K) V {
 	hm.mutex.Lock()
 	defer hm.mutex.Unlock()
@@ -88,6 +94,7 @@ func (hm *HMap) Get(key K) V {
 	return value
 }
 
+// ContainsKey checks if the given Key exists in the Hash Map
 func (hm *HMap) ContainsKey(key K) bool {
 	hm.mutex.Lock()
 	defer hm.mutex.Unlock()
@@ -97,14 +104,4 @@ func (hm *HMap) ContainsKey(key K) bool {
 	index := calcIndex(int(hm.hash.Sum64()), len(hm.buckets))
 
 	return hm.buckets[index] != nil
-}
-
-func (hm *HMap) Size() int {
-	hm.mutex.Lock()
-	defer hm.mutex.Unlock()
-	defer hm.hash.Reset()
-
-	size := len(hm.buckets)
-
-	return size
 }
