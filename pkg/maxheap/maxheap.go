@@ -2,19 +2,24 @@ package maxheap
 
 import "fmt"
 
+//Value represents a value inside the MaxHeap
+type Value interface {
+	greaterThan(Value) bool
+}
+
 //MaxHeap struct has a slice that holds the heap values
 type MaxHeap struct {
-	values []int
+	values []Value
 }
 
 //Insert adds an element to the heap
-func (h *MaxHeap) Insert(key int) {
+func (h *MaxHeap) Insert(key Value) {
 	h.values = append(h.values, key)
 	h.maxHeapifyUp(len(h.values) - 1)
 }
 
 //Extract returns the largest key, and removes it from the heap
-func (h *MaxHeap) Extract() int {
+func (h *MaxHeap) Extract() interface{} {
 	extracted := h.values[0]
 
 	l := len(h.values) - 1
@@ -34,7 +39,7 @@ func (h *MaxHeap) Extract() int {
 
 //maxHeapifyUp will heapify from bottom to top
 func (h *MaxHeap) maxHeapifyUp(index int) {
-	for h.values[parent(index)] < h.values[index] {
+	for h.values[index].greaterThan(h.values[parent(index)]) {
 		h.swap(parent(index), index)
 		index = parent(index)
 	}
@@ -47,13 +52,13 @@ func (h *MaxHeap) maxHeapifyDown(index int) {
 	childToCompare := 0
 
 	for l <= lastIndex {
-		if l == lastIndex || h.values[l] > h.values[r] { // when left child is the only child or when left child is larger
+		if l == lastIndex || h.values[l].greaterThan(h.values[r]) { // when left child is the only child or when left child is larger
 			childToCompare = l
 		} else { // when right child is larger
 			childToCompare = r
 		}
 
-		if h.values[index] < h.values[childToCompare] {
+		if h.values[childToCompare].greaterThan(h.values[index]) {
 			h.swap(index, childToCompare)
 			index = childToCompare
 			l, r = left(index), right(index)
