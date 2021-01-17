@@ -5,6 +5,7 @@ import (
 )
 
 func main() {
+	fmt.Println("TODO: Improve HashMap")
 	fmt.Println("TODO: Implement Graph")
 	fmt.Println("TODO: Implement LinkedList")
 	fmt.Println("TODO: Implement ArrayList")
